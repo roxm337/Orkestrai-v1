@@ -10,6 +10,7 @@ from app.models.workflow import WorkflowRun
 from app.services.graph import topological_sort
 from app.services.playwright_service import PlaywrightService
 from app.services.website_generator import WebsiteGenerator
+from app.services.workflow_normalizer import normalize_workflow_definition
 
 
 class WorkflowExecutor:
@@ -33,7 +34,9 @@ class WorkflowExecutor:
             run = db.get(WorkflowRun, run_id)
             if run is None:
                 return
-            definition = deepcopy(run.workflow_snapshot or {})
+            definition = normalize_workflow_definition(deepcopy(run.workflow_snapshot or {}))
+            if run.workflow_snapshot != definition:
+                run.workflow_snapshot = definition
             run.status = "running"
             run.progress = 0.0
             run.started_at = datetime.now(timezone.utc)
@@ -45,7 +48,13 @@ class WorkflowExecutor:
 
         try:
             ordered_nodes = topological_sort(definition.get("nodes", []), definition.get("edges", []))
-            payload: dict[str, Any] = {"businesses": [], "generated_sites": []}
+            payload: dict[str, Any] = {
+                "businesses": [],
+                "discovery_results": [],
+                "enriched_businesses": [],
+                "analysis_results": [],
+                "generated_sites": [],
+            }
 
             for index, node in enumerate(ordered_nodes, start=1):
                 node_id = node["id"]
@@ -120,14 +129,14 @@ class WorkflowExecutor:
 
         if node_type == "analysis":
             analyzed = []
-            for business in payload.get("businesses", []):
+            for business in payload.get("enriched_businesses") or payload.get("businesses", []):
                 summary = await self.groq_service.analyze_business(business, config=config)
                 analyzed.append({**business, "analysis": summary})
             return {"businesses": analyzed, "count": len(analyzed)}
 
         if node_type == "website_generator":
             sites = []
-            for business in payload.get("businesses", []):
+            for business in payload.get("analysis_results") or payload.get("businesses", []):
                 site = await self.website_generator.generate_site(
                     run_id=run_id,
                     business=business,
@@ -142,6 +151,12 @@ class WorkflowExecutor:
         next_payload = deepcopy(payload)
         if node_type in {"scraper", "enrichment", "analysis"}:
             next_payload["businesses"] = output.get("businesses", [])
+        if node_type == "scraper":
+            next_payload["discovery_results"] = output.get("businesses", [])
+        if node_type == "enrichment":
+            next_payload["enriched_businesses"] = output.get("businesses", [])
+        if node_type == "analysis":
+            next_payload["analysis_results"] = output.get("businesses", [])
         if node_type == "website_generator":
             next_payload["generated_sites"] = output.get("sites", [])
         return next_payload

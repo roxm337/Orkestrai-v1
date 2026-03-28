@@ -1,12 +1,13 @@
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, status
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect, status
 
 from app.api.deps import get_event_bus, get_run_queue
 from app.core.database import SessionLocal, get_db
 from app.models.workflow import Workflow, WorkflowRun
-from app.schemas.run import RunRead
+from app.schemas.run import GeneratedAssetRead, RunRead
+from app.services.workflow_normalizer import normalize_workflow_definition
 
 router = APIRouter(tags=["runs"])
 
@@ -25,6 +26,16 @@ def get_run(run_id: str, db: Session = Depends(get_db)):
     return run
 
 
+@router.get("/runs/{run_id}/assets", response_model=list[GeneratedAssetRead])
+def get_run_assets(run_id: str, request: Request, db: Session = Depends(get_db)):
+    run = db.get(WorkflowRun, run_id)
+    if run is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found")
+
+    website_generator = request.app.state.executor.website_generator
+    return website_generator.list_generated_sites(run_id=run_id)
+
+
 @router.post("/workflows/{workflow_id}/runs", response_model=RunRead, status_code=status.HTTP_202_ACCEPTED)
 async def create_run(
     workflow_id: str,
@@ -34,11 +45,17 @@ async def create_run(
     workflow = db.get(Workflow, workflow_id)
     if workflow is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
+    normalized_definition = normalize_workflow_definition(workflow.definition)
+    if workflow.definition != normalized_definition:
+        workflow.definition = normalized_definition
+        db.add(workflow)
+        db.commit()
+        db.refresh(workflow)
 
     run = WorkflowRun(
         workflow_id=workflow.id,
         status="queued",
-        workflow_snapshot=workflow.definition,
+        workflow_snapshot=normalized_definition,
         results={},
         logs=[],
     )

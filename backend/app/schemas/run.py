@@ -4,6 +4,17 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class GeneratedAssetRead(BaseModel):
+    businessName: str
+    slug: str
+    path: str
+    files: list[str] = Field(default_factory=list)
+    entrypoint: str = "index.html"
+    theme: str | None = None
+    architecture: dict[str, list[str]] | list[str] = Field(default_factory=dict)
+    blueprint: dict[str, Any] = Field(default_factory=dict)
+
+
 class RunRead(BaseModel):
     id: str
     workflow_id: str

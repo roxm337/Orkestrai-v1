@@ -13,6 +13,11 @@ class WorkflowNodeData(BaseModel):
     type: str
     label: str
     description: str = ""
+    category: str | None = None
+    runtime: str | None = None
+    accent: str | None = None
+    inputs: list[str] = Field(default_factory=list)
+    outputs: list[str] = Field(default_factory=list)
     config: dict[str, Any] = Field(default_factory=dict)
 
 

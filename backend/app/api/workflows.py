@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.database import get_db
 from app.models.workflow import Workflow
 from app.schemas.workflow import WorkflowCreate, WorkflowRead, WorkflowSummary, WorkflowUpdate
+from app.services.workflow_normalizer import normalize_workflow_definition
 
 router = APIRouter(prefix="/workflows", tags=["workflows"])
 
@@ -13,15 +14,25 @@ router = APIRouter(prefix="/workflows", tags=["workflows"])
 @router.get("", response_model=list[WorkflowSummary])
 def list_workflows(db: Session = Depends(get_db)):
     workflows = db.scalars(select(Workflow).order_by(desc(Workflow.updated_at))).all()
+    updated = False
+    for workflow in workflows:
+        normalized = normalize_workflow_definition(workflow.definition)
+        if workflow.definition != normalized:
+            workflow.definition = normalized
+            db.add(workflow)
+            updated = True
+    if updated:
+        db.commit()
     return workflows
 
 
 @router.post("", response_model=WorkflowRead, status_code=status.HTTP_201_CREATED)
 def create_workflow(payload: WorkflowCreate, db: Session = Depends(get_db)):
+    definition = normalize_workflow_definition(payload.definition.model_dump())
     workflow = Workflow(
         name=payload.name,
         description=payload.description,
-        definition=payload.definition.model_dump(),
+        definition=definition,
     )
     db.add(workflow)
     db.commit()
@@ -34,6 +45,12 @@ def get_workflow(workflow_id: str, db: Session = Depends(get_db)):
     workflow = db.get(Workflow, workflow_id)
     if workflow is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
+    normalized = normalize_workflow_definition(workflow.definition)
+    if workflow.definition != normalized:
+        workflow.definition = normalized
+        db.add(workflow)
+        db.commit()
+        db.refresh(workflow)
     return workflow
 
 
@@ -45,7 +62,7 @@ def update_workflow(workflow_id: str, payload: WorkflowUpdate, db: Session = Dep
 
     workflow.name = payload.name
     workflow.description = payload.description
-    workflow.definition = payload.definition.model_dump()
+    workflow.definition = normalize_workflow_definition(payload.definition.model_dump())
     db.add(workflow)
     db.commit()
     db.refresh(workflow)

@@ -28,13 +28,14 @@ async def lifespan(app: FastAPI):
     await event_bus.connect()
     await run_queue.connect()
     browser_manager = BrowserManager(settings)
+    groq_service = GroqService(settings)
 
     executor = WorkflowExecutor(
         session_factory=SessionLocal,
         event_bus=event_bus,
         playwright_service=PlaywrightService(browser_manager),
-        groq_service=GroqService(settings),
-        website_generator=WebsiteGenerator(settings),
+        groq_service=groq_service,
+        website_generator=WebsiteGenerator(settings, groq_service),
     )
 
     worker_task = asyncio.create_task(run_worker(run_queue, executor))
