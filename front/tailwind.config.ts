@@ -10,23 +10,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#171410",
-        sand: "#f4efe5",
-        dune: "#d5c8b8",
-        ember: "#c65b2a",
-        pine: "#28503f",
-        mist: "#edf5f2"
+        ink: "#ffffff",
+        app: "#0a0a0b",
+        card: "#16161a",
+        accent: "#7c3aed",
+        action: "#3b82f6",
+        success: "#22c55e",
+        muted: "#a1a1aa"
       },
       fontFamily: {
-        display: ["Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Georgia", "serif"],
-        body: ["Avenir Next", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"]
+        display: ["Inter", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
+        body: ["Inter", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"]
       },
       boxShadow: {
-        soft: "0 20px 60px rgba(29, 23, 17, 0.08)"
+        soft: "0 30px 80px rgba(0, 0, 0, 0.35)"
       },
       backgroundImage: {
         "hero-radial":
-          "radial-gradient(circle at top left, rgba(233, 192, 146, 0.7), transparent 38%), radial-gradient(circle at bottom right, rgba(99, 153, 122, 0.18), transparent 28%)"
+          "radial-gradient(circle at top left, rgba(124, 58, 237, 0.22), transparent 32%), radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.16), transparent 28%)"
       }
     }
   },

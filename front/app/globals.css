@@ -4,8 +4,14 @@
 
 :root {
   color-scheme: light;
-  --app-bg: #f6f8fb;
-  --app-line: rgba(148, 163, 184, 0.16);
+  --app-bg: #f6f8fc;
+  --app-card: #ffffff;
+  --app-border: rgba(15, 23, 42, 0.08);
+  --app-text: #0f172a;
+  --app-muted: #64748b;
+  --app-accent: #7c3aed;
+  --app-action: #3b82f6;
+  --app-success: #22c55e;
 }
 
 html {
@@ -16,13 +22,14 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: theme("fontFamily.body");
-  color: #0f172a;
+  color: var(--app-text);
   background:
-    linear-gradient(var(--app-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--app-line) 1px, transparent 1px),
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 24%),
-    linear-gradient(180deg, #fbfcfe 0%, var(--app-bg) 100%);
-  background-size: 28px 28px, 28px 28px, auto, auto;
+    radial-gradient(circle at top left, rgba(124, 58, 237, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 24%),
+    linear-gradient(var(--app-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--app-border) 1px, transparent 1px),
+    linear-gradient(180deg, #fbfdff 0%, #f4f7fb 100%);
+  background-size: auto, auto, 32px 32px, 32px 32px, auto;
   background-attachment: fixed;
 }
 
@@ -36,12 +43,42 @@ a {
 }
 
 ::selection {
-  background: rgba(59, 130, 246, 0.16);
+  background: rgba(124, 58, 237, 0.3);
 }
 
 .app-shell {
-  width: min(1400px, calc(100% - 2rem));
+  width: min(1600px, calc(100% - 2rem));
   margin: 0 auto;
+}
+
+.workflow-panel {
+  border-radius: 28px;
+  border: 1px solid var(--app-border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)),
+    rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.workflow-canvas {
+  background:
+    radial-gradient(circle at center, rgba(124, 58, 237, 0.06), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(244, 247, 252, 0.98));
+}
+
+.workflow-node-active {
+  animation: workflowPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes workflowPulse {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 .react-flow__attribution {
@@ -50,13 +87,26 @@ a {
 
 .react-flow__controls,
 .react-flow__minimap {
-  border-radius: 16px !important;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.1) !important;
 }
 
 .react-flow__controls-button {
-  background: white !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #334155 !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor;
+}
+
+.react-flow__edge-path {
+  stroke-linecap: round;
+}
+
+.react-flow__panel {
+  z-index: 5;
 }

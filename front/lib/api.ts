@@ -1,6 +1,7 @@
 import {
   fallbackNodeCatalog,
   fallbackSampleWorkflow,
+  type GeneratedAsset,
   type NodeCatalogItem,
   type WorkflowPayload,
   type WorkflowRecord,
@@ -67,6 +68,10 @@ export async function getRuns() {
 
 export async function getRun(id: string) {
   return fetchJson<WorkflowRun | null>(`/runs/${id}`, undefined, null);
+}
+
+export async function getRunAssets(runId: string) {
+  return fetchJson<GeneratedAsset[]>(`/runs/${runId}/assets`, undefined, []);
 }
 
 export async function createRun(workflowId: string) {

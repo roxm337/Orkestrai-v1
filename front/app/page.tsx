@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock3, Layers3, PlayCircle, Sparkles } from "lucide-react";
+import { ArrowRight, Bot, Command, PlayCircle, Sparkles, WandSparkles } from "lucide-react";
 
 import { getRuns, getWorkflows } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ function toneFor(status: string) {
   if (status === "completed" || status === "failed" || status === "running" || status === "queued") {
     return status;
   }
+
   return "default";
 }
 
@@ -19,171 +20,139 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr),360px]">
-        <Card className="overflow-hidden border-slate-200 bg-[linear-gradient(135deg,#ffffff,rgba(248,250,252,0.94))]">
-          <CardHeader className="space-y-4">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              <Sparkles className="h-3.5 w-3.5 text-sky-600" />
-              Workflow builder
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr),360px]">
+        <Card className="overflow-hidden border-[#8b5cf6]/16 bg-[linear-gradient(135deg,rgba(124,58,237,0.12),rgba(59,130,246,0.08)_35%,rgba(255,255,255,0.94)_100%)]">
+          <CardHeader className="gap-4">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+              <Sparkles className="h-3.5 w-3.5 text-[#8b5cf6]" />
+              Lead OS
             </div>
             <CardTitle className="max-w-4xl text-4xl leading-tight md:text-5xl">
-              Minimal workflow ops for scraping, enrichment, analysis, and site generation.
+              Build cleaner lead workflows.
             </CardTitle>
             <CardDescription className="max-w-3xl text-[15px] leading-7">
-              Build a clean automation graph, run it locally, and monitor each step without clutter. The interface is
-              optimized for fast access, low cognitive load, and operator-style control.
+              Build, run, and monitor in one place.
             </CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-5">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Workflows</p>
-                <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-slate-950">{workflows.length}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Active runs</p>
-                <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-slate-950">{runningCount}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Latest engine</p>
-                <p className="mt-2 text-sm font-semibold tracking-[-0.01em] text-slate-950">Playwright + Lightpanda</p>
-              </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {[
+                { label: "Workflows", value: workflows.length, hint: "Saved flows" },
+                { label: "Active runs", value: runningCount, hint: "Live now" },
+                { label: "Command", value: "Cmd + K", hint: "AI actions" }
+              ].map((item) => (
+                <div key={item.label} className="rounded-[24px] border border-slate-200 bg-white/80 px-4 py-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
+                  <p className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-slate-950">{item.value}</p>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">{item.hint}</p>
+                </div>
+              ))}
             </div>
+
             <div className="flex flex-wrap gap-3">
               <Link href="/workflows/new?mode=blank">
                 <Button variant="accent" size="lg">
-                  Start from scratch
+                  Open blank canvas
                 </Button>
               </Link>
               <Link href="/workflows/new">
                 <Button variant="secondary" size="lg">
-                  Use sample flow
+                  Load AI template
                 </Button>
               </Link>
-              <a href="#recent-runs">
-                <Button variant="ghost" size="lg">
-                  View recent runs
-                </Button>
-              </a>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-950 text-white">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-white">Operator model</CardTitle>
-            <CardDescription className="text-slate-300">
-              The product flow is intentionally simple and direct, like a mature internal tool.
-            </CardDescription>
+            <CardTitle className="text-2xl">What makes it feel premium</CardTitle>
+            <CardDescription>Clear, fast, focused.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              "Build with compact human-friendly nodes.",
-              "Inspect node settings without leaving the canvas.",
-              "Run workflows and stream status in real time.",
-              "Keep the interface quiet and fast to scan."
+              { title: "Command palette", copy: "Create flows fast.", icon: Command },
+              { title: "Local agents", copy: "Attach agent roles.", icon: Bot },
+              { title: "Execution view", copy: "Track every run.", icon: PlayCircle }
             ].map((item) => (
-              <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-6 text-slate-200">
-                {item}
+              <div key={item.title} className="rounded-[22px] border border-slate-200 bg-white/80 px-4 py-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-950">{item.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-500">{item.copy}</p>
+                  </div>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-[#8b5cf6]">
+                    <item.icon className="h-4 w-4" />
+                  </span>
+                </div>
               </div>
             ))}
           </CardContent>
         </Card>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {[
-          {
-            title: "Visual builder",
-            value: "React Flow",
-            copy: "Deterministic canvas for fast graph authoring.",
-            icon: Layers3
-          },
-          {
-            title: "Execution",
-            value: `${runs.length} runs`,
-            copy: "Status, logs, and active-node tracking in one place.",
-            icon: PlayCircle
-          },
-          {
-            title: "Latency",
-            value: "Live",
-            copy: "Fast access to the latest run state with websocket updates.",
-            icon: Clock3
-          }
-        ].map((item) => (
-          <Card key={item.title}>
-            <CardContent className="mt-0 flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">{item.title}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-slate-950">{item.value}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-500">{item.copy}</p>
-              </div>
-              <span className="rounded-2xl bg-slate-100 p-3 text-slate-700">
-                <item.icon className="h-5 w-5" />
-              </span>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr),minmax(0,1fr)]">
         <Card>
           <CardHeader>
-            <CardTitle>Workflows</CardTitle>
-            <CardDescription>Clean access to saved graphs and quick edit entry points.</CardDescription>
+            <CardTitle className="text-2xl">Saved workflows</CardTitle>
+            <CardDescription>Open and edit.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {workflows.length ? (
               workflows.map((workflow) => (
-                <div key={workflow.id} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 px-4 py-4">
-                  <div>
-                    <p className="font-medium text-slate-950">{workflow.name}</p>
-                    <p className="mt-1 text-sm text-slate-500">{workflow.description}</p>
+                <Link
+                  key={workflow.id}
+                  href={`/workflows/${workflow.id}`}
+                  className="block rounded-[24px] border border-slate-200 bg-white/80 px-4 py-4 transition hover:border-slate-300 hover:bg-white"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-950">{workflow.name}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-500 line-clamp-2">{workflow.description}</p>
+                    </div>
+                    <ArrowRight className="mt-1 h-4 w-4 text-slate-400" />
                   </div>
-                  <Link href={`/workflows/${workflow.id}`}>
-                    <Button variant="secondary" size="sm">
-                      Open
-                    </Button>
-                  </Link>
-                </div>
+                </Link>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
-                No workflows saved yet. Start with the sample builder or open a blank canvas from scratch.
+              <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
+                No workflows yet.
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card id="recent-runs">
+        <Card>
           <CardHeader>
-            <CardTitle>Recent runs</CardTitle>
-            <CardDescription>Fast, table-like access to run health and current execution state.</CardDescription>
+            <CardTitle className="text-2xl">Recent runs</CardTitle>
+            <CardDescription>Latest activity.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {runs.length ? (
               runs.slice(0, 6).map((run) => (
-                <div key={run.id} className="rounded-2xl border border-slate-200 px-4 py-4">
+                <Link
+                  key={run.id}
+                  href={`/runs/${run.id}`}
+                  className="block rounded-[24px] border border-slate-200 bg-white/80 px-4 py-4 transition hover:border-slate-300 hover:bg-white"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <PlayCircle className="h-4 w-4 text-sky-600" />
-                      <p className="font-medium text-slate-950">{run.current_node_label ?? "Queued workflow run"}</p>
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-[#8b5cf6]">
+                        <WandSparkles className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-950">{run.current_node_label ?? "Queued workflow run"}</p>
+                        <p className="mt-1 text-xs text-slate-500">{Math.round((run.progress ?? 0) * 100)}% complete</p>
+                      </div>
                     </div>
                     <Badge tone={toneFor(run.status)}>{run.status}</Badge>
                   </div>
-                  <div className="mt-3 flex items-center justify-between gap-4 text-sm text-slate-500">
-                    <span>{Math.round((run.progress ?? 0) * 100)}% complete</span>
-                    <Link className="inline-flex items-center gap-1 font-medium text-sky-700" href={`/runs/${run.id}`}>
-                      View run
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
+                </Link>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
-                No runs yet. Save a workflow and hit Run to queue your first local execution.
+              <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
+                No runs yet.
               </div>
             )}
           </CardContent>
